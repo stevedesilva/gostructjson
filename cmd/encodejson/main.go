@@ -8,7 +8,8 @@ import (
 type permissions map[string]bool
 
 type user struct {
-	Name, Password string
+	name     string
+	password string
 	permissions
 }
 
