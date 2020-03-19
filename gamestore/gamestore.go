@@ -32,12 +32,22 @@ func (g *Games) Add(id, price int, name, genre string) {
 	g.games = append(g.games, game)
 }
 
-// Format games
-func (g *Games) Format() []string {
+// List games
+func (g *Games) List() []string {
 	result := make([]string, len(g.games))
 	for _, gm := range g.games {
 		res := fmt.Sprintf("#%d: %-15q %-20s $%d\n", gm.id, gm.name, "("+gm.genre+")", gm.price)
 		result = append(result, res)
 	}
 	return result
+}
+
+// Search for item
+func (g *Games) Search(in string) (found bool) {
+	for _, v := range g.games {
+		if v.name == in {
+			return true
+		}
+	}
+	return
 }
