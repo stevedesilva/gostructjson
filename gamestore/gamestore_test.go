@@ -171,7 +171,7 @@ func TestGamestore_Run_id_with_value(t *testing.T) {
 
 func TestGamestore_Run_id_error(t *testing.T) {
 	// use your solution from the previous exercise
-	r := strings.NewReader("id 0")
+	r := strings.NewReader("id")
 	g := gs.New(r, 3)
 	assert.NotNil(t, g)
 
