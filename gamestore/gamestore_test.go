@@ -1,6 +1,7 @@
 package gamestore_test
 
 import (
+	"strings"
 	"testing"
 
 	gs "github.com/stevedesilva/gostructjson/gamestore"
@@ -35,7 +36,8 @@ import (
 //  Please run the solution to see the output.
 // ---------------------------------------------------------
 func TestGamestore_created(t *testing.T) {
-	g := gs.New()
+	r := strings.NewReader("hello")
+	g := gs.New(r, 3)
 	assert.NotNil(t, g)
 
 	g.Add(1, 50, "god of war", "action adventure")
@@ -43,7 +45,7 @@ func TestGamestore_created(t *testing.T) {
 	g.Add(3, 20, "minecraft", "sandbox")
 
 	got := g.List()
-	want := []string{"", "", "", "#1: \"god of war\"    (action adventure)   $50\n", "#2: \"x-com 2\"       (strategy)           $30\n", "#3: \"minecraft\"     (sandbox)            $20\n"}
+	want := []string{"#1: \"god of war\"    (action adventure)   $50\n", "#2: \"x-com 2\"       (strategy)           $30\n", "#3: \"minecraft\"     (sandbox)            $20\n"}
 	assert.Equal(t, want, got)
 
 }
@@ -69,8 +71,9 @@ func TestGamestore_created(t *testing.T) {
 //  quit commands.
 // ---------------------------------------------------------
 func TestGamestore_should_find_game(t *testing.T) {
+	r := strings.NewReader("hello")
 	// use your solution from the previous exercise
-	g := gs.New()
+	g := gs.New(r, 3)
 	assert.NotNil(t, g)
 
 	g.Add(1, 50, "god of war", "action adventure")
@@ -86,11 +89,115 @@ func TestGamestore_should_find_game(t *testing.T) {
 
 func TestGamestore_should_list_games(t *testing.T) {
 	// use your solution from the previous exercise
-	g := gs.New()
+	r := strings.NewReader("hello")
+	g := gs.New(r, 3)
 	assert.NotNil(t, g)
 
 	g.Add(1, 50, "god of war", "action adventure")
 	g.Add(2, 30, "x-com 2", "strategy")
 	g.Add(3, 20, "minecraft", "sandbox")
 
+	got := g.List()
+	want := []string{"#1: \"god of war\"    (action adventure)   $50\n", "#2: \"x-com 2\"       (strategy)           $30\n", "#3: \"minecraft\"     (sandbox)            $20\n"}
+
+	assert.Equal(t, want, got)
 }
+
+// id 2
+func TestGamestore_when_given_id_should_return_games(t *testing.T) {
+	// use your solution from the previous exercise
+	r := strings.NewReader("id 2")
+	g := gs.New(r, 3)
+	assert.NotNil(t, g)
+
+	g.Add(1, 50, "god of war", "action adventure")
+	g.Add(2, 30, "x-com 2", "strategy")
+	g.Add(3, 20, "minecraft", "sandbox")
+
+	got := g.GetByID(2)
+	want := "#2: \"x-com 2\"       (strategy)           $30\n"
+
+	assert.Equal(t, want, got)
+}
+
+// id 2
+func TestGamestore_Run_quit(t *testing.T) {
+	// use your solution from the previous exercise
+	r := strings.NewReader("quit")
+	g := gs.New(r, 3)
+	assert.NotNil(t, g)
+
+	g.Add(1, 50, "god of war", "action adventure")
+	g.Add(2, 30, "x-com 2", "strategy")
+	g.Add(3, 20, "minecraft", "sandbox")
+
+	got := g.Run()
+	want := []string{"Bye!"}
+
+	assert.Equal(t, want, got)
+}
+
+func TestGamestore_Run_list(t *testing.T) {
+	// use your solution from the previous exercise
+	r := strings.NewReader("list")
+	g := gs.New(r, 3)
+	assert.NotNil(t, g)
+
+	g.Add(1, 50, "god of war", "action adventure")
+	g.Add(2, 30, "x-com 2", "strategy")
+	g.Add(3, 20, "minecraft", "sandbox")
+
+	got := g.Run()
+	want := []string{"#1: \"god of war\"    (action adventure)   $50\n", "#2: \"x-com 2\"       (strategy)           $30\n", "#3: \"minecraft\"     (sandbox)            $20\n"}
+
+	assert.Equal(t, want, got)
+}
+
+func TestGamestore_Run_id_with_value(t *testing.T) {
+	// use your solution from the previous exercise
+	r := strings.NewReader("id 2")
+	g := gs.New(r, 3)
+	assert.NotNil(t, g)
+
+	g.Add(1, 50, "god of war", "action adventure")
+	g.Add(2, 30, "x-com 2", "strategy")
+	g.Add(3, 20, "minecraft", "sandbox")
+
+	got := g.Run()
+	want := []string{"#2: \"x-com 2\"       (strategy)           $30\n"}
+
+	assert.Equal(t, want, got)
+}
+
+func TestGamestore_Run_id_error(t *testing.T) {
+	// use your solution from the previous exercise
+	r := strings.NewReader("id 0")
+	g := gs.New(r, 3)
+	assert.NotNil(t, g)
+
+	g.Add(1, 50, "god of war", "action adventure")
+	g.Add(2, 30, "x-com 2", "strategy")
+	g.Add(3, 20, "minecraft", "sandbox")
+
+	got := g.Run()
+	want := []string{"Missing args"}
+
+	assert.Equal(t, want, got)
+}
+
+func TestGamestore_Run_id_not_found(t *testing.T) {
+	// use your solution from the previous exercise
+	r := strings.NewReader("id 0")
+	g := gs.New(r, 3)
+	assert.NotNil(t, g)
+
+	g.Add(1, 50, "god of war", "action adventure")
+	g.Add(2, 30, "x-com 2", "strategy")
+	g.Add(3, 20, "minecraft", "sandbox")
+
+	got := g.Run()
+	want := []string{"#0: \"\"              ()                   $0\n"}
+
+	assert.Equal(t, want, got)
+}
+
