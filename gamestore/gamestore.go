@@ -2,6 +2,8 @@ package gamestore
 
 import (
 	"bufio"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"sort"
@@ -9,44 +11,46 @@ import (
 	"strings"
 )
 
+// ErrSaveGame error
+var ErrSaveGame = errors.New("Save game error")
+
 // Item struct
-type item struct {
-	id    int
-	name  string
-	price int
+type Item struct {
+	ID    int    `json:"id,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Price int    `json:"price,omitempty"`
 }
 
 // Game struct
-type game struct {
-	item
-	genre string
+type Game struct {
+	Item
+	Genre string `json:"genre,omitempty"`
 }
 
 // Games struct exposed to client
 type Games struct {
-	Sc *bufio.Scanner
-	// Games []game
-	Games map[int]game
+	Sc    *bufio.Scanner
+	Games map[int]Game
 }
 
 // New Constructor
 func New(reader io.Reader, size int) *Games {
 	return &Games{
 		Sc:    bufio.NewScanner(reader),
-		Games: make(map[int]game, size),
+		Games: make(map[int]Game, size),
 	}
 }
 
 // Add game
 func (g *Games) Add(id, price int, name, genre string) {
-	g.Games[id] = game{item{id, name, price}, genre}
+	g.Games[id] = Game{Item{id, name, price}, genre}
 }
 
 // List games
 func (g *Games) List() []string {
 	result := make([]string, 0, len(g.Games))
 	for _, gm := range g.Games {
-		res := fmt.Sprintf("#%d: %-15q %-20s $%d\n", gm.id, gm.name, "("+gm.genre+")", gm.price)
+		res := fmt.Sprintf("#%d: %-15q %-20s $%d\n", gm.ID, gm.Name, "("+gm.Genre+")", gm.Price)
 		result = append(result, res)
 	}
 	sort.Strings(result)
@@ -88,18 +92,82 @@ func (g *Games) List() []string {
 // ---------------------------------------------------------
 func (g *Games) GetByID(id int) string {
 	gm := g.Games[id]
-	res := fmt.Sprintf("#%d: %-15q %-20s $%d\n", gm.id, gm.name, "("+gm.genre+")", gm.price)
+	res := fmt.Sprintf("#%d: %-15q %-20s $%d\n", gm.ID, gm.Name, "("+gm.Genre+")", gm.Price)
 	return res
 }
 
 // Search for item
 func (g *Games) Search(in string) (found bool) {
 	for _, v := range g.Games {
-		if v.name == in {
+		if v.Name == in {
 			return true
 		}
 	}
 	return
+}
+
+// Save EXERCISE: Encode
+//
+//  Add a new command: "save". Encode the games to json, and
+//  print it, then terminate the loop.
+//
+//  1. Create a new struct type with exported fields: ID, Name, Genre and Price.
+//
+//  2. Create a new slice using the new struct type.
+//
+//  3. Save the games into the new slice.
+//
+//  4. Encode the new slice.
+//
+//
+// RESTRICTION
+//  Do not export the fields of the game struct.
+//
+//
+// EXPECTED OUTPUT
+//  Inanc's game store has 3 games.
+//
+//    > list   : lists all the games
+//    > id N   : queries a game by id
+//    > save   : exports the data to json and quits
+//    > quit   : quits
+//
+//  save
+//
+//  [
+//          {
+//                  "id": 1,
+//                  "name": "god of war",
+//                  "genre": "action adventure",
+//                  "price": 50
+//          },
+//          {
+//                  "id": 2,
+//                  "name": "x-com 2",
+//                  "genre": "strategy",
+//                  "price": 40
+//          },
+//          {
+//                  "id": 3,
+//                  "name": "minecraft",
+//                  "genre": "sandbox",
+//                  "price": 20
+//          }
+//  ]
+//
+// ---------------------------------------------------------
+func (g *Games) Save() (string, error) {
+	result := make([]Game, len(g.Games))
+	for _, gm := range g.Games {
+		result[gm.ID-1] = gm
+	}
+
+	out, err := json.MarshalIndent(result, "", "\t")
+	if err != nil {
+		return "", ErrSaveGame
+	}
+	return string(out), nil
+
 }
 
 // Run listens for user command ( List Search or Quit) and response with appropriate response
@@ -112,6 +180,7 @@ GamesLoop:
 > quit  : quit 
 > search: games list for item
 > id [num]: return the game for this id
+> save   : exports the data to json and quits
 
 		`)
 
@@ -160,6 +229,15 @@ GamesLoop:
 			gm := g.GetByID(v)
 			fmt.Println("Found ", gm)
 			result = append(result, gm)
+
+		case "save":
+			v, err := g.Save()
+			if err != nil {
+				continue
+			}
+			result = append(result, v)
+			fmt.Println("Save ", result)
+			return
 
 		default:
 			fmt.Println("Default " + in)

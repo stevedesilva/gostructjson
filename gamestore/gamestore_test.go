@@ -201,3 +201,69 @@ func TestGamestore_Run_id_not_found(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
+// ---------------------------------------------------------
+// EXERCISE: Encode
+//
+//  Add a new command: "save". Encode the games to json, and
+//  print it, then terminate the loop.
+//
+//  1. Create a new struct type with exported fields: ID, Name, Genre and Price.
+//
+//  2. Create a new slice using the new struct type.
+//
+//  3. Save the games into the new slice.
+//
+//  4. Encode the new slice.
+//
+//
+// RESTRICTION
+//  Do not export the fields of the game struct.
+//
+//
+// EXPECTED OUTPUT
+//  Inanc's game store has 3 games.
+//
+//    > list   : lists all the games
+//    > id N   : queries a game by id
+//    > save   : exports the data to json and quits
+//    > quit   : quits
+//
+//  save
+//
+//  [
+//          {
+//                  "id": 1,
+//                  "name": "god of war",
+//                  "genre": "action adventure",
+//                  "price": 50
+//          },
+//          {
+//                  "id": 2,
+//                  "name": "x-com 2",
+//                  "genre": "strategy",
+//                  "price": 40
+//          },
+//          {
+//                  "id": 3,
+//                  "name": "minecraft",
+//                  "genre": "sandbox",
+//                  "price": 20
+//          }
+//  ]
+//
+// ---------------------------------------------------------
+func TestGamestore_Run_Save(t *testing.T) {
+	// use your solution from the previous exercise
+	r := strings.NewReader("save")
+	g := gs.New(r, 3)
+	assert.NotNil(t, g)
+
+	g.Add(1, 50, "god of war", "action adventure")
+	g.Add(2, 30, "x-com 2", "strategy")
+	g.Add(3, 20, "minecraft", "sandbox")
+
+	got := g.Run()
+	want := []string{"[\n\t{\n\t\t\"id\": 1,\n\t\t\"name\": \"god of war\",\n\t\t\"price\": 50,\n\t\t\"genre\": \"action adventure\"\n\t},\n\t{\n\t\t\"id\": 2,\n\t\t\"name\": \"x-com 2\",\n\t\t\"price\": 30,\n\t\t\"genre\": \"strategy\"\n\t},\n\t{\n\t\t\"id\": 3,\n\t\t\"name\": \"minecraft\",\n\t\t\"price\": 20,\n\t\t\"genre\": \"sandbox\"\n\t}\n]"}
+
+	assert.Equal(t, want, got)
+}
