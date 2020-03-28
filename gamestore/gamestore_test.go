@@ -127,10 +127,6 @@ func TestGamestore_Run_quit(t *testing.T) {
 	g := gs.New(r, 3)
 	assert.NotNil(t, g)
 
-	g.Add(1, 50, "god of war", "action adventure")
-	g.Add(2, 30, "x-com 2", "strategy")
-	g.Add(3, 20, "minecraft", "sandbox")
-
 	got := g.Run()
 	want := []string{"Bye!"}
 
@@ -143,12 +139,20 @@ func TestGamestore_Run_list(t *testing.T) {
 	g := gs.New(r, 3)
 	assert.NotNil(t, g)
 
-	g.Add(1, 50, "god of war", "action adventure")
-	g.Add(2, 30, "x-com 2", "strategy")
-	g.Add(3, 20, "minecraft", "sandbox")
-
 	got := g.Run()
 	want := []string{"#1: \"god of war\"    (action adventure)   $50\n", "#2: \"x-com 2\"       (strategy)           $30\n", "#3: \"minecraft\"     (sandbox)            $20\n"}
+
+	assert.Equal(t, want, got)
+}
+
+func TestGamestore_Run_search(t *testing.T) {
+	// use your solution from the previous exercise
+	r := strings.NewReader("search god of war")
+	g := gs.New(r, 3)
+	assert.NotNil(t, g)
+
+	got := g.Run()
+	want := []string([]string{"Found ", "true"})
 
 	assert.Equal(t, want, got)
 }
@@ -158,10 +162,6 @@ func TestGamestore_Run_id_with_value(t *testing.T) {
 	r := strings.NewReader("id 2")
 	g := gs.New(r, 3)
 	assert.NotNil(t, g)
-
-	g.Add(1, 50, "god of war", "action adventure")
-	g.Add(2, 30, "x-com 2", "strategy")
-	g.Add(3, 20, "minecraft", "sandbox")
 
 	got := g.Run()
 	want := []string{"#2: \"x-com 2\"       (strategy)           $30\n"}
@@ -174,10 +174,6 @@ func TestGamestore_Run_id_error(t *testing.T) {
 	r := strings.NewReader("id")
 	g := gs.New(r, 3)
 	assert.NotNil(t, g)
-
-	g.Add(1, 50, "god of war", "action adventure")
-	g.Add(2, 30, "x-com 2", "strategy")
-	g.Add(3, 20, "minecraft", "sandbox")
 
 	got := g.Run()
 	want := []string{"Missing args"}
@@ -263,7 +259,7 @@ func TestGamestore_Run_Save(t *testing.T) {
 	g.Add(3, 20, "minecraft", "sandbox")
 
 	got := g.Run()
-	want := []string{"[\n\t{\n\t\t\"id\": 1,\n\t\t\"name\": \"god of war\",\n\t\t\"price\": 50,\n\t\t\"genre\": \"action adventure\"\n\t},\n\t{\n\t\t\"id\": 2,\n\t\t\"name\": \"x-com 2\",\n\t\t\"price\": 30,\n\t\t\"genre\": \"strategy\"\n\t},\n\t{\n\t\t\"id\": 3,\n\t\t\"name\": \"minecraft\",\n\t\t\"price\": 20,\n\t\t\"genre\": \"sandbox\"\n\t}\n]"}
+	want := []string{"[\n\t{\n\t\t\"id\": 1,\n\t\t\"name\": \"god of war\",\n\t\t\"genre\": \"action adventure\",\n\t\t\"price\": 50\n\t},\n\t{\n\t\t\"id\": 2,\n\t\t\"name\": \"x-com 2\",\n\t\t\"genre\": \"strategy\",\n\t\t\"price\": 30\n\t},\n\t{\n\t\t\"id\": 3,\n\t\t\"name\": \"minecraft\",\n\t\t\"genre\": \"sandbox\",\n\t\t\"price\": 20\n\t}\n]"}
 
 	assert.Equal(t, want, got)
 }
